@@ -35,7 +35,6 @@
           .join("")
         ;
         const username = prompt("what's your nickname?") || randomStr();
-        let totalConnect = 0;
 
         form.addEventListener('submit', function(e) {
           e.preventDefault();
@@ -47,7 +46,11 @@
 
         socket.on("connect", () => {
           socket.emit("register username", username);
-          socket.emit("setConnectCounter", "connect");
+          socket.emit("set connect counter", "connect");
+          socket.on('get connect counter', (connectCounter) => {
+            var item = document.getElementById('total-connect');
+            item.innerHTML = connectCounter
+          })
         });
 
         socket.on('chat message', function({username, msg}) {
@@ -68,10 +71,6 @@
           item.textContent = `${newUsername} connected!`;
           messagesContainer.appendChild(item);
           window.scrollTo(0, document.body.scrollHeight);
-        })
-
-        socket.on('get connect counter', (connectCounter) => {
-          totalConnect = connectCounter
         })
 
         socket.on('disconnected', function (currentUsername) {

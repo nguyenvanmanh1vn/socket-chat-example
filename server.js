@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
     io.emit('get connect counter', connectCounter)
   })
 
-  socket.on('setConnectCounter', status => {
+  socket.on('set connect counter', status => {
     switch (status) {
       case 'connect':
         connectCounter += 1
@@ -42,8 +42,8 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('a user disconnected');
-    io.emit('disconnected', username)
-    socket.emit("setConnectCounter", "leave");
+    io.emit('disconnected', username);
+    socket.emit("set connect counter", "leave");
   });
 });
 
