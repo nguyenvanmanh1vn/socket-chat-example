@@ -16,6 +16,7 @@
     </style>
   </head>
   <body>
+    <span id="total-connect"></span>
     <ul id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" />
@@ -25,24 +26,61 @@
     <script>
         var socket = io();
 
-        var messages = document.getElementById('messages');
+        var messagesContainer = document.getElementById('messages');
         var form = document.getElementById('form');
         var input = document.getElementById('input');
+
+        const randomStr = (n=10) => [...Array(n)]
+          .map(e => String.fromCharCode(~~(Math.random() * 26) + 97))
+          .join("")
+        ;
+        const username = prompt("what's your nickname?") || randomStr();
+        let totalConnect = 0;
 
         form.addEventListener('submit', function(e) {
           e.preventDefault();
           if (input.value) {
-            socket.emit('chat message', input.value);
+            socket.emit('chat message', {username: username, msg: input.value});
             input.value = '';
           }
         });
 
-        socket.on('chat message', function(msg) {
+        socket.on("connect", () => {
+          socket.emit("register username", username);
+          socket.emit("setConnectCounter", "connect");
+        });
+
+        socket.on('chat message', function({username, msg}) {
           var item = document.createElement('li');
-          item.textContent = msg;
-          messages.appendChild(item);
+          var itemUsername = document.createElement('span');
+          var itemMessage = document.createElement('span');
+          
+          itemUsername.textContent = `${username}: `;
+          itemMessage.textContent = msg;
+          item.appendChild(itemUsername);
+          item.appendChild(itemMessage);
+          messagesContainer.appendChild(item);
           window.scrollTo(0, document.body.scrollHeight);
         });
+
+        socket.on('a user connected', function (newUsername) {
+          var item = document.createElement('li');
+          item.textContent = `${newUsername} connected!`;
+          messagesContainer.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+        })
+
+        socket.on('get connect counter', (connectCounter) => {
+          totalConnect = connectCounter
+        })
+
+        socket.on('disconnected', function (currentUsername) {
+          var item = document.createElement('li');
+          item.textContent = `${currentUsername} disconnected!`;
+          messagesContainer.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+        })
+
     </script>
   </body>
 </html>

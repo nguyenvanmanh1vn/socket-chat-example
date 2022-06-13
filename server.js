@@ -10,19 +10,44 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
-
-    socket.on('chat message', (msg) => {
-        console.log('message: ' + msg);
-        io.emit('chat message', msg);
-      });
-
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
+  let username = "anonymous";
+  let connectCounter = 0;
+  
+  socket.on('chat message', ({username, msg}) => {
+    console.log('message: ' + msg);
+    io.emit('chat message', {username, msg});
+  });
+  
+  socket.on('register username', newUsername => {
+    // send to all clients but the sender
+    socket.broadcast.emit('a user connected', `${newUsername}`);
+    username = newUsername;
   });
 
+  socket.on('get connect counter', () => {
+    io.emit('get connect counter', connectCounter)
+  })
+
+  socket.on('setConnectCounter', status => {
+    switch (status) {
+      case 'connect':
+        connectCounter += 1
+        break;
+    
+      default:
+        connectCounter -= 1
+        break;
+    }
+  })
+
+  socket.on('disconnect', () => {
+    console.log('a user disconnected');
+    io.emit('disconnected', username)
+    socket.emit("setConnectCounter", "leave");
+  });
+});
+
 server.listen(3000, () => {
-    const envUrl = 'http://localhost:3000'
-    console.log(`listening on ${envUrl}`);
+  const envUrl = 'http://localhost:3000'
+  console.log(`listening on ${envUrl}`);
 });
