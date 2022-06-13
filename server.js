@@ -19,7 +19,7 @@ io.on('connection', (socket) => {
   
   socket.on('register username', newUsername => {
     // send to all clients but the sender
-    socket.broadcast.emit('a user connected', `${newUsername}`);
+    socket.broadcast.emit(`${newUsername} connected`, `${newUsername}`);
     username = newUsername;
   });
 
@@ -28,9 +28,9 @@ io.on('connection', (socket) => {
   })
 
   socket.on('disconnect', () => {
-    console.log('a user disconnected');
+    console.log(`${username} disconnected`);
     io.emit('disconnected', username);
-    socket.emit("set connect counter", "leave");
+    socket.emit('set connect counter', 'leave');
   });
 });
 
