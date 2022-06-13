@@ -11,8 +11,7 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   let username = "anonymous";
-  let connectCounter = 0;
-  
+
   socket.on('chat message', ({username, msg}) => {
     console.log('message: ' + msg);
     io.emit('chat message', {username, msg});
@@ -26,18 +25,6 @@ io.on('connection', (socket) => {
 
   socket.on('get connect counter', () => {
     io.emit('get connect counter', connectCounter)
-  })
-
-  socket.on('set connect counter', status => {
-    switch (status) {
-      case 'connect':
-        connectCounter += 1
-        break;
-    
-      default:
-        connectCounter -= 1
-        break;
-    }
   })
 
   socket.on('disconnect', () => {

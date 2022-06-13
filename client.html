@@ -16,7 +16,6 @@
     </style>
   </head>
   <body>
-    <span id="total-connect"></span>
     <ul id="messages"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" />
@@ -47,10 +46,6 @@
         socket.on("connect", () => {
           socket.emit("register username", username);
           socket.emit("set connect counter", "connect");
-          socket.on('get connect counter', (connectCounter) => {
-            var item = document.getElementById('total-connect');
-            item.innerHTML = connectCounter
-          })
         });
 
         socket.on('chat message', function({username, msg}) {
