@@ -16,10 +16,15 @@ io.on('connection', (socket) => {
     console.log('message: ' + msg);
     io.emit('chat message', {username, msg});
   });
+
+  socket.on('typing', (username) => {
+    console.log('typing: ' + username);
+    socket.broadcast.emit('typing', username);
+  });
   
   socket.on('register username', newUsername => {
     // send to all clients but the sender
-    socket.broadcast.emit(`${newUsername} connected`, `${newUsername}`);
+    socket.broadcast.emit('a user connected', `${newUsername}`);
     username = newUsername;
   });
 
@@ -30,7 +35,6 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log(`${username} disconnected`);
     io.emit('disconnected', username);
-    socket.emit('set connect counter', 'leave');
   });
 });
 

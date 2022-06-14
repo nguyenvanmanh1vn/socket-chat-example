@@ -17,6 +17,7 @@
   </head>
   <body>
     <ul id="messages"></ul>
+    <p id="typing"></p>
     <form id="form" action="">
       <input id="input" autocomplete="off" />
       <button type="submit">Send</button>
@@ -26,6 +27,7 @@
         var socket = io();
 
         var messagesContainer = document.getElementById('messages');
+        var typingContainer = document.getElementById('typing');
         var form = document.getElementById('form');
         var input = document.getElementById('input');
 
@@ -43,9 +45,18 @@
           }
         });
 
+        input.addEventListener("keypress", () => {
+          if (input.value) {
+            socket.emit('typing', username);
+          }
+        })
+
+        socket.on('typing', function(username) {
+          typingContainer.innerHTML = `<p><em>${username}</em> is typing...</p>`
+        });
+
         socket.on("connect", () => {
           socket.emit("register username", username);
-          socket.emit("set connect counter", "connect");
         });
 
         socket.on('chat message', function({username, msg}) {
@@ -59,6 +70,8 @@
           item.appendChild(itemMessage);
           messagesContainer.appendChild(item);
           window.scrollTo(0, document.body.scrollHeight);
+          
+          typingContainer.innerHTML = ''
         });
 
         socket.on('a user connected', function (newUsername) {
